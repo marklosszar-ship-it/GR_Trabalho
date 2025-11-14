@@ -1,0 +1,52 @@
+# ================================
+# CONFIGURAÇÃO DO SISTEMA
+# ================================
+mapName = CidadeMini
+numberOfRoads = 2
+simulationStep = 5
+currentSimulationTime = 350
+systemState = running
+fixedYellowTime = 3
+
+
+# ================================
+# VIA 1 (Início)
+# ================================
+roadId.1 = 1
+trafficRate.1 = 35
+vehicleCount.1 = 120
+trafficLightColor.1 = green
+remainingTime.1 = 15
+maxCapacity.1 = 300
+outflowRate.1 = 30
+greenLightTime.1 = 25
+redLightTime.1 = 40
+
+
+# ================================
+# VIA 2 (Destino)
+# ================================
+roadId.2 = 2
+trafficRate.2 = 50
+vehicleCount.2 = 240
+trafficLightColor.2 = red
+remainingTime.2 = 20
+maxCapacity.2 = 400
+outflowRate.2 = 45
+greenLightTime.2 = 30
+redLightTime.2 = 45
+
+
+# ================================
+# ESTADOS GERAIS
+# ================================
+mostCongestedRoad = 2
+totalVehicles = 300
+averageWaitTime = 48
+
+
+# ================================
+# DESTINO
+# ================================
+destinationRoadId.1 = 1
+destinationId.1 = 2

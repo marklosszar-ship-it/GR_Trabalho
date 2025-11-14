@@ -1,0 +1,236 @@
+TRAFFIC_MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Integer32, enterprises
+        FROM SNMPv2-SMI
+    DisplayString
+        FROM SNMPv2-TC;
+
+trafficSimulation MODULE-IDENTITY
+    LAST-UPDATED "202511110000Z"
+    ORGANIZATION "Traffic Simulation Project"
+    CONTACT-INFO
+        "Support: traffic-simulation@example.com"
+    DESCRIPTION
+        "MIB for a traffic simulation system, including configuration,
+         road tables, traffic states, and destination links."
+    REVISION "202511110000Z"
+    DESCRIPTION
+        "Initial revision with corrected structure."
+    ::= { enterprises 5000 }
+
+-- ============================================================
+-- 1. ROAD TABLE
+-- ============================================================
+
+roads OBJECT IDENTIFIER ::= { trafficSimulation 1 }
+
+roadTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF RoadEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION "Table containing road simulation parameters."
+    ::= { roads 1 }
+
+roadEntry OBJECT-TYPE
+    SYNTAX RoadEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION "An entry containing road parameters."
+    INDEX { roadId }
+    ::= { roadTable 1 }
+
+RoadEntry ::=
+    SEQUENCE {
+        roadId              Integer32,
+        trafficRate         Integer32,
+        vehicleCount        Integer32,
+        trafficLightColor   DisplayString,
+        remainingTime       Integer32,
+        maxCapacity         Integer32,
+        outflowRate         Integer32,
+        greenLightTime      Integer32,
+        redLightTime        Integer32
+    }
+
+roadId OBJECT-TYPE
+    SYNTAX Integer32 (1..100)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "Unique identifier of the road."
+    ::= { roadEntry 1 }
+
+trafficRate OBJECT-TYPE
+    SYNTAX Integer32 (0..100)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "Traffic generation rate on the road."
+    ::= { roadEntry 2 }
+
+vehicleCount OBJECT-TYPE
+    SYNTAX Integer32 (0..1000)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "Number of vehicles currently on the road."
+    ::= { roadEntry 3 }
+
+trafficLightColor OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..16))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "Current color of the traffic light (green, yellow, red)."
+    ::= { roadEntry 4 }
+
+remainingTime OBJECT-TYPE
+    SYNTAX Integer32 (0..300)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "Remaining time for the current traffic light phase."
+    ::= { roadEntry 5 }
+
+maxCapacity OBJECT-TYPE
+    SYNTAX Integer32 (0..1000)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "Maximum capacity of the road."
+    ::= { roadEntry 6 }
+
+outflowRate OBJECT-TYPE
+    SYNTAX Integer32 (0..100)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "Vehicle outflow rate from the road."
+    ::= { roadEntry 7 }
+
+greenLightTime OBJECT-TYPE
+    SYNTAX Integer32 (0..300)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "Duration of green traffic light in seconds."
+    ::= { roadEntry 8 }
+
+redLightTime OBJECT-TYPE
+    SYNTAX Integer32 (0..300)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "Duration of red traffic light in seconds."
+    ::= { roadEntry 9 }
+
+-- ============================================================
+-- 2. TRAFFIC CONFIGURATION
+-- ============================================================
+
+trafficConfig OBJECT IDENTIFIER ::= { trafficSimulation 2 }
+
+mapName OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..64))
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "Name or identifier of the simulated map."
+    ::= { trafficConfig 1 }
+
+numberOfRoads OBJECT-TYPE
+    SYNTAX Integer32 (0..100)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "Total number of roads in the simulation."
+    ::= { trafficConfig 2 }
+
+simulationStep OBJECT-TYPE
+    SYNTAX Integer32 (1..60)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "Time interval between simulation steps (in seconds)."
+    ::= { trafficConfig 3 }
+
+currentSimulationTime OBJECT-TYPE
+    SYNTAX Integer32 (0..100000)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "Current simulation time in seconds."
+    ::= { trafficConfig 4 }
+
+systemState OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(1..20))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "Current system state (e.g., active, paused, finished)."
+    ::= { trafficConfig 5 }
+
+fixedYellowTime OBJECT-TYPE
+    SYNTAX Integer32 (0..60)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "Fixed yellow traffic light duration (in seconds)."
+    ::= { trafficConfig 6 }
+
+-- ============================================================
+-- 3. TRAFFIC STATES
+-- ============================================================
+
+trafficStates OBJECT IDENTIFIER ::= { trafficSimulation 3 }
+
+mostCongestedRoad OBJECT-TYPE
+    SYNTAX Integer32 (0..100)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "ID of the most congested road."
+    ::= { trafficStates 1 }
+
+totalVehicles OBJECT-TYPE
+    SYNTAX Integer32 (0..10000)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "Total number of vehicles across all roads."
+    ::= { trafficStates 2 }
+
+averageWaitTime OBJECT-TYPE
+    SYNTAX Integer32 (0..10000)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "Average waiting time of vehicles (in seconds)."
+    ::= { trafficStates 3 }
+
+-- ============================================================
+-- 4. DESTINATION ROADS TABLE
+-- ============================================================
+
+destinationRoads OBJECT IDENTIFIER ::= { trafficSimulation 4 }
+
+destinationRoadTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF DestinationRoadEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION "Table listing destination roads."
+    ::= { destinationRoads 1 }
+
+destinationRoadEntry OBJECT-TYPE
+    SYNTAX DestinationRoadEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION "Entry mapping a road to its destination."
+    INDEX { destinationRoadId }
+    ::= { destinationRoadTable 1 }
+
+DestinationRoadEntry ::=
+    SEQUENCE {
+        destinationRoadId    Integer32,
+        destinationId        Integer32
+    }
+
+destinationRoadId OBJECT-TYPE
+    SYNTAX Integer32 (1..100)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "ID of the road entry."
+    ::= { destinationRoadEntry 1 }
+
+destinationId OBJECT-TYPE
+    SYNTAX Integer32 (1..100)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "ID of the destination linked to the road."
+    ::= { destinationRoadEntry 2 }
+
+END
+
